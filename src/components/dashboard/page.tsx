@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, Info } from 'lucide-react';
 import Link from 'next/link';
@@ -20,7 +20,7 @@ import {
   Line,
 } from 'recharts';
 
-const Dashboard = () => {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const { data, loading, error } = useDataFetch();
   const [filteredData, setFilteredData] = useState<EVData[]>([]);
@@ -39,7 +39,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!loading && data.length > 0) {
-                const filters: Record<string, string> = {};
+      const filters: Record<string, string> = {};
       for (const [key, value] of searchParams.entries()) {
         const originalKey = key
           .split('_')
@@ -383,6 +383,24 @@ const Dashboard = () => {
         </div>
       )}
     </div>
+  );
+}
+
+function DashboardFallback() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    </div>
+  );
+}
+
+const Dashboard = () => {
+  return (
+    <Suspense fallback={<DashboardFallback />}>
+      <DashboardContent />
+    </Suspense>
   );
 };
 
